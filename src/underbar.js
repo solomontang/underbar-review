@@ -253,11 +253,8 @@
   _.extend = function(obj) {
     var args = [...arguments];  
     args.shift();
-    console.log(JSON.stringify(args));
     _.each(args, function(arg) {
-      console.log("arg: "+arg);  
       _.each(arg, function(value, key) { 
-        console.log("key: "+key);
         obj[key] = value;
       });  
     });
@@ -267,6 +264,17 @@
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    var args = [...arguments];  
+    args.shift();
+    _.each(args, function(arg) {
+      _.each(arg, function(value, key) {
+        // do not execute of destination already contains key
+        if (!obj.hasOwnProperty(key)) {
+          obj[key] = value;
+        }
+      });  
+    });
+    return obj;
   };
 
 
@@ -310,6 +318,16 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var resultObject = {};
+    // if it hasn't been called before.
+    return function() {
+      var argumentsString = JSON.stringify(arguments); 
+      if (!resultObject.hasOwnProperty(argumentsString)) {
+        resultObject[argumentsString] = func.apply(this, arguments); 
+      }
+      // The new function always returns the originally computed result.
+      return resultObject[argumentsString];
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -319,6 +337,11 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = Array.prototype.slice.call(arguments, 2);
+    setTimeout(function() {
+      //debugger;
+      func.apply(this, args);
+    }, wait);
   };
 
 
@@ -333,6 +356,13 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var copyArray = array.slice();
+    var firstElement;
+    for (var i = 0; i < copyArray.length; i++) {  
+      firstElement = copyArray.shift();
+      copyArray.splice(Math.floor(Math.random() * copyArray.length), 0, firstElement);
+    }
+    return copyArray;
   };
 
 
