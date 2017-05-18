@@ -44,7 +44,7 @@
       return array[array.length - 1];
     } else if (n < array.length) {
     // if index arguement is smaller than length of array
-      // get last n element 
+      // get last n element
       return array.slice(array.length - n);
     } else {
       return array;
@@ -92,9 +92,9 @@
   _.filter = function(collection, test) {
     //push elements that pass truth test to new array
     var filtered = [];
-    _.each(collection, function(element) {
+    _.each(collection, function(element, index, array) {
       //if the test passes for the element
-      if (test(element)) {
+      if (test(element, index, array)) {
         //push element to filtered
         filtered.push(element);
       }
@@ -114,15 +114,9 @@
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
-    //use each. test function will be checking if array already includes current element
-      //if true, push to new array
-    var unique = [];
-    _.each(array, function (element) {
-      if (!unique.includes(element)) {
-        unique.push(element);
-      }
+    return _.filter(array, function(ele, idx) {
+      return _.indexOf(array, ele) ===  idx;
     });
-    return unique;
   };
 
 
@@ -132,7 +126,7 @@
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
     var result = [];
-    _.each(collection, function (element, index, array) {  
+    _.each(collection, function (element, index, array) {
       result.push(iterator(element, index, array));
     });
     return result;
@@ -159,19 +153,19 @@
   // Reduces an array or object to a single value by repetitively calling
   // iterator(accumulator, item) for each item. accumulator should be
   // the return value of the previous iterator call.
-  //  
+  //
   // You can pass in a starting value for the accumulator as the third argument
   // to reduce. If no starting value is passed, the first element is used as
   // the accumulator, and is never passed to the iterator. In other words, in
   // the case where a starting value is not passed, the iterator is not invoked
   // until the second element, with the first element as its second argument.
-  //  
+  //
   // Example:
   //   var numbers = [1,2,3];
   //   var sum = _.reduce(numbers, function(total, number){
   //     return total + number;
   //   }, 0); // should be 6
-  //  
+  //
   //   var identity = _.reduce([5], function(total, number){
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
@@ -179,7 +173,7 @@
   _.reduce = function(collection, iterator, accumulator) {
     var copyArray;
     if (Array.isArray(collection)) {
-      copyArray = collection.slice();      
+      copyArray = collection.slice();
     } else if (typeof collection === 'object') {
       copyArray = Object.assign([], collection);
       copyArray = Object.values(copyArray);
@@ -188,8 +182,8 @@
       accumulator = _.first(collection);
       copyArray.shift();
     }
-    // for each element in collection  
-    _.each(copyArray, function(element) {      
+    // for each element in collection
+    _.each(copyArray, function(element) {
       // accumulator is a aggreagate result of iterator function
       accumulator = iterator(accumulator, element);
     });
@@ -217,7 +211,7 @@
       if (!allTrue) {
         return false;
       }
-      return Boolean(iterator(item)); 
+      return Boolean(iterator(item));
     }, true);
   };
 
@@ -227,8 +221,8 @@
     // TIP: There's a very clever way to re-use every() here.
     iterator = iterator || _.identity;
     return !_.every(collection, function(element) {
-      return !iterator(element); 
-    });   
+      return !iterator(element);
+    });
   };
 
 
@@ -251,12 +245,12 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
-    var args = [...arguments];  
+    var args = [...arguments];
     args.shift();
     _.each(args, function(arg) {
-      _.each(arg, function(value, key) { 
+      _.each(arg, function(value, key) {
         obj[key] = value;
-      });  
+      });
     });
     return obj;
   };
@@ -264,7 +258,7 @@
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
-    var args = [...arguments];  
+    var args = [...arguments];
     args.shift();
     _.each(args, function(arg) {
       _.each(arg, function(value, key) {
@@ -272,7 +266,7 @@
         if (!obj.hasOwnProperty(key)) {
           obj[key] = value;
         }
-      });  
+      });
     });
     return obj;
   };
@@ -321,9 +315,9 @@
     var resultObject = {};
     // if it hasn't been called before.
     return function() {
-      var argumentsString = JSON.stringify(arguments); 
+      var argumentsString = JSON.stringify(arguments);
       if (!resultObject.hasOwnProperty(argumentsString)) {
-        resultObject[argumentsString] = func.apply(this, arguments); 
+        resultObject[argumentsString] = func.apply(this, arguments);
       }
       // The new function always returns the originally computed result.
       return resultObject[argumentsString];
@@ -358,7 +352,7 @@
   _.shuffle = function(array) {
     var copyArray = array.slice();
     var firstElement;
-    for (var i = 0; i < copyArray.length; i++) {  
+    for (var i = 0; i < copyArray.length; i++) {
       firstElement = copyArray.shift();
       copyArray.splice(Math.floor(Math.random() * copyArray.length), 0, firstElement);
     }
